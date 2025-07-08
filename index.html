@@ -364,6 +364,63 @@
       margin: 0 0 2px 0;
     }
     .squad-player-card .squad-sets { color: #666; font-size: 0.92em; }
+    .top10-card-row {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  padding: 4px 0 15px 0;
+  margin-bottom: 24px;
+  scrollbar-width: thin;
+}
+.top10-card {
+  min-width: 210px;
+  background: var(--surface);
+  border-radius: 20px;
+  box-shadow: 0 2px 12px #0002;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 19px 14px 16px 14px;
+  position: relative;
+  transition: transform .12s;
+  margin-bottom: 8px;
+  border: 2px solid #fff4;
+}
+.top10-card .rank {
+  position: absolute; top: 10px; left: 13px;
+  font-size: 1.1em; font-weight: 700; color: var(--primary);
+  background: var(--gold);
+  padding: 2px 11px;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px #ffd70029;
+}
+.top10-card .player-btn {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1.13em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 12px;
+  margin-bottom: 2px;
+}
+.top10-card .team {
+  font-size: 0.97em;
+  color: #596285;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+.top10-card .value {
+  font-size: 1.51em;
+  font-weight: 800;
+  color: var(--accent);
+  margin-top: 7px;
+}
+@media (max-width: 600px) {
+  .top10-card { min-width: 155px; padding: 15px 5px 11px 7px;}
+  .top10-card .player-btn { font-size: 1em;}
+}
+
   </style>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
@@ -642,33 +699,46 @@
 
   /* --- Results Page --- */
   function renderResultsList() {
-    if (!resultsData.length) {
-      document.getElementById('results-list').innerHTML =
-        `<div style="color:#888;padding:10px">No results loaded.</div>`;
-      return;
-    }
+  if (!resultsData.length) {
+    document.getElementById('results-list').innerHTML =
+      `<div style="color:#888;padding:10px">No results loaded.</div>`;
+    return;
+  }
+  // Group by Group, then Date
+  let byGroup = {};
+  resultsData.forEach(r => {
+    let group = r.Group || "Other";
+    (byGroup[group] = byGroup[group] || []).push(r);
+  });
+
+  let out = '';
+  Object.entries(byGroup).forEach(([group, matches]) => {
+    // Inside each group, group by date descending
     let byDate = {};
-    resultsData.forEach(r => {
+    matches.forEach(r => {
       let date = formatDate(r.Date);
-      (byDate[date] = byDate[date]||[]).push(r);
+      (byDate[date] = byDate[date] || []).push(r);
     });
-    let out = '';
-    Object.entries(byDate).sort().reverse().forEach(([date, matches]) => {
+    out += `<div style="margin-bottom:30px">
+      <div style="font-size:1.12em;font-weight:800;color:var(--primary);margin:12px 0 7px 3px;">Group: ${group}</div>`;
+    Object.entries(byDate).sort((a,b)=>b[0].localeCompare(a[0])).forEach(([date, games]) => {
       out += `<div class="date-group"><div class="date-label">${date}</div>
-        <table><tr><th>Team 1</th><th></th><th>Team 2</th><th>Score</th><th>Winner</th></tr>`;
-      matches.forEach(r => {
+        <table><tr><th>Team A</th><th></th><th>Team B</th><th>Score</th><th>Winner</th></tr>`;
+      games.forEach(r => {
         let a = +r["Score A"]||0, b = +r["Score B"]||0;
-        let win = r.Winner || (a>b ? r["Team 1"] : b>a ? r["Team 2"] : "Draw");
+        let win = r.Winner || (a > b ? r["Team A"] : b > a ? r["Team B"] : "Draw");
         out += `<tr>
-          <td>${r["Team 1"]}</td><td style="color:#a81100;font-weight:700;">vs</td>
-          <td>${r["Team 2"]}</td><td>${a} - ${b}</td>
+          <td>${r["Team A"]}</td><td style="color:#a81100;font-weight:700;">vs</td>
+          <td>${r["Team B"]}</td><td>${a} - ${b}</td>
           <td class="winner-cell">${win}</td>
         </tr>`;
       });
       out += `</table></div>`;
     });
-    document.getElementById('results-list').innerHTML = out;
-  }
+    out += `</div>`;
+  });
+  document.getElementById('results-list').innerHTML = out;
+}
 
   /* --- Standings --- */
   function renderStandingsTables() {
@@ -757,45 +827,45 @@
 
   /* --- Top 10 Page --- */
   function renderTop10Tables() {
-    if (!statsData.length) return;
-    const cats = [
-      { label:"MVP", key:"MVP", compute:calcMvpScore, min:2 },
-      { label:"3 Dart Avg", key:"3 Dart Avg", min:2 },
-      { label:"First 9 Avg", key:"First 9 Avg", min:2 },
-      { label:"100+ Scores", key:"100+", min:2 },
-      { label:"High Finish", key:"High Finish", min:2 }
-    ];
-    let out = '';
-    cats.forEach(cat => {
-      let el = statsData.filter(p=>+p["Match Played"]>=cat.min);
-      if (cat.compute) el.forEach(p=> p._MVP = cat.compute(p));
-      if (cat.key==="100+") el.forEach(p=> p._100Total = (+p["100+"]||0)+(+
-        p["140+"]||0)+(+p["170+"]||0)+(+p["180's"]||0));
-      el.sort((a,b) => {
-        if (cat.compute) return b._MVP - a._MVP;
-        if (cat.key==="100+") return b._100Total - a._100Total;
-        return (+b[cat.key]||0) - (+a[cat.key]||0);
-      });
-      let top = el.slice(0,10);
-      out += `<div style="margin-bottom:26px">
-        <div style="font-weight:700;font-size:1.11em;color:var(--primary);margin:7px 0 4px 0;">
-          Top 10 ${cat.label}
-        </div><div style="overflow-x:auto">
-        <table class="top10-table">
-          <tr><th>Rank</th><th>Player</th><th>Team</th><th>${cat.label}</th></tr>`;
-      top.forEach((p,i) => {
-        let v = cat.compute ? p._MVP.toFixed(2)
-           : cat.key==="100+" ? p._100Total : p[cat.key];
-        out += `<tr>
-          <td>${i+1}</td>
-          <td><button class="player-link" onclick="showPlayerPopup('${encodeURIComponent(p.Player)}')">${p.Player}</button></td>
-          <td>${p.Team}</td><td>${v}</td>
-        </tr>`;
-      });
-      out += `</table></div></div>`;
+  if (!statsData.length) return;
+  const cats = [
+    { label:"MVP", key:"MVP", compute:calcMvpScore, min:2 },
+    { label:"3 Dart Avg", key:"3 Dart Avg", min:2 },
+    { label:"First 9 Avg", key:"First 9 Avg", min:2 },
+    { label:"100+ Scores", key:"100+", min:2 },
+    { label:"High Finish", key:"High Finish", min:2 }
+  ];
+  let out = '';
+  cats.forEach(cat => {
+    let el = statsData.filter(p=>+p["Match Played"]>=cat.min);
+    if (cat.compute) el.forEach(p=> p._MVP = cat.compute(p));
+    if (cat.key==="100+") el.forEach(p=> p._100Total = (+p["100+"]||0)+(+p["140+"]||0)+(+p["170+"]||0)+(+p["180's"]||0));
+    el.sort((a,b) => {
+      if (cat.compute) return b._MVP - a._MVP;
+      if (cat.key==="100+") return b._100Total - a._100Total;
+      return (+b[cat.key]||0) - (+a[cat.key]||0);
     });
-    document.getElementById('top10-tables').innerHTML = out;
-  }
+    let top = el.slice(0,10);
+    out += `<div>
+      <div style="font-weight:700;font-size:1.11em;color:var(--primary);margin:7px 0 8px 0;">
+        Top 10 ${cat.label}
+      </div>
+      <div class="top10-card-row">`;
+    top.forEach((p,i) => {
+      let v = cat.compute ? p._MVP.toFixed(2)
+         : cat.key==="100+" ? p._100Total : p[cat.key];
+      out += `
+      <div class="top10-card">
+        <span class="rank">#${i+1}</span>
+        <button class="player-btn" onclick="showPlayerPopup('${encodeURIComponent(p.Player)}')">${p.Player}</button>
+        <div class="team">${p.Team}</div>
+        <div class="value">${v}</div>
+      </div>`;
+    });
+    out += `</div></div>`;
+  });
+  document.getElementById('top10-tables').innerHTML = out;
+}
 
   function calcMvpScore(p) {
     let w3=3, w1=1.5, w2=2, w4=4, w5=1, w6=0.5;
