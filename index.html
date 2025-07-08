@@ -612,15 +612,6 @@
     { label: "Best Win Rate (Sets)", ...bestStat("Win Rate (Sets)", (a,b) => asNum(b["Win Rate (Sets)"])>asNum(a["Win Rate (Sets)"])?b:a, v => (v*100).toFixed(1)+"%") },
     { label: "High Finish", ...bestStat("High Finish", (a,b) => asNum(b["High Finish"])>asNum(a["High Finish"])?b:a) },
     { label: "Best First 9 Avg", ...bestStat("First 9 Avg", (a,b) => asNum(b["First 9 Avg"])>asNum(a["First 9 Avg"])?b:a) },
-    { 
-      label: "Best Leg", 
-      ...bestStat(
-        "Best Leg", 
-        (a, b) => asNum(b["Best Leg"]) < asNum(a["Best Leg"]) ? b : a,
-        null,
-        (p) => asNum(p["Best Leg"]) <= 5
-      )
-    }
   ];
   document.getElementById('stat-highlights').innerHTML = highlights.map(h => `
     <div class="stat-card">
