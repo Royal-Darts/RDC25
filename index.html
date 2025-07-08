@@ -602,11 +602,11 @@
       return;
     }
     let out = `<table class="fixtures-table">
-      <tr><th>Team A</th><th></th><th>Team B</th><th>Time</th></tr>`;
+      <tr><th>Team 1</th><th></th><th>Team 2</th><th>Time</th></tr>`;
     todays.forEach(f => {
       out += `<tr>
-        <td>${f["Team A"]||""}</td><td style="color:#a81100;font-weight:700;">vs</td>
-        <td>${f["Team B"]||""}</td><td>${formatTime(f.Time||f.Date)}</td>
+        <td>${f["Team 1"]||""}</td><td style="color:#a81100;font-weight:700;">vs</td>
+        <td>${f["Team 2"]||""}</td><td>${formatTime(f.Time||f.Date)}</td>
       </tr>`;
     });
     out += `</table>`;
@@ -623,16 +623,16 @@
     let byDate = {};
     fixturesData.forEach(f => {
       let date = formatDate(f.Date);
-      if (f["Team A"] && f["Team B"]) (byDate[date] = byDate[date]||[]).push(f);
+      if (f["Team 1"] && f["Team 2"]) (byDate[date] = byDate[date]||[]).push(f);
     });
     let out = '';
     Object.entries(byDate).sort().forEach(([date, matches]) => {
       out += `<div class="date-group"><div class="date-label">${date}</div>
-        <table><tr><th>Team A</th><th></th><th>Team B</th><th>Time</th></tr>`;
+        <table><tr><th>Team 1</th><th></th><th>Team 2</th><th>Time</th></tr>`;
       matches.forEach(f => {
         out += `<tr>
-          <td>${f["Team A"]}</td><td style="color:#a81100;font-weight:700;">vs</td>
-          <td>${f["Team B"]}</td><td>${formatTime(f.Time||f.Date)}</td>
+          <td>${f["Team 1"]}</td><td style="color:#a81100;font-weight:700;">vs</td>
+          <td>${f["Team 2"]}</td><td>${formatTime(f.Time||f.Date)}</td>
         </tr>`;
       });
       out += `</table></div>`;
@@ -655,13 +655,13 @@
     let out = '';
     Object.entries(byDate).sort().reverse().forEach(([date, matches]) => {
       out += `<div class="date-group"><div class="date-label">${date}</div>
-        <table><tr><th>Team A</th><th></th><th>Team B</th><th>Score</th><th>Winner</th></tr>`;
+        <table><tr><th>Team 1</th><th></th><th>Team 2</th><th>Score</th><th>Winner</th></tr>`;
       matches.forEach(r => {
         let a = +r["Score A"]||0, b = +r["Score B"]||0;
-        let win = r.Winner || (a>b ? r["Team A"] : b>a ? r["Team B"] : "Draw");
+        let win = r.Winner || (a>b ? r["Team 1"] : b>a ? r["Team 2"] : "Draw");
         out += `<tr>
-          <td>${r["Team A"]}</td><td style="color:#a81100;font-weight:700;">vs</td>
-          <td>${r["Team B"]}</td><td>${a} - ${b}</td>
+          <td>${r["Team 1"]}</td><td style="color:#a81100;font-weight:700;">vs</td>
+          <td>${r["Team 2"]}</td><td>${a} - ${b}</td>
           <td class="winner-cell">${win}</td>
         </tr>`;
       });
