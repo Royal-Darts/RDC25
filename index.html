@@ -591,41 +591,45 @@
 
   /* --- Stat Highlights --- */
   function renderStatHighlights() {
-    if (!statsData.length) return;
-    function bestStat(col, bestFn, postFn) {
-      let arr = statsData.filter(p => asNum(p["Match Played"]) >= 2 && asNum(p[col]) !== null && p[col] !== "");
-      if (!arr.length) return { value: "NA", player: "NA" };
-      let best = arr.reduce((a, b) => bestFn(a,b), arr[0]);
-      let tieArr = arr.filter(x => asNum(x[col]) === asNum(best[col]));
-      let winner = tieArr.sort((a,b) => asNum(b["Match Played"]) - asNum(a["Match Played"]))[0];
-      let val = asNum(winner[col]);
-      if (postFn) val = postFn(val);
-      return { value: val != null ? val : "NA", player: winner.Player || "NA" };
+  if (!statsData.length) return;
+  function bestStat(col, bestFn, postFn, extraFilter) {
+    let arr = statsData.filter(p => 
+      asNum(p["Match Played"]) >= 2 && 
+      asNum(p[col]) !== null && p[col] !== "" &&
+      (extraFilter ? extraFilter(p) : true)
+    );
+    if (!arr.length) return { value: "NA", player: "NA" };
+    let best = arr.reduce((a, b) => bestFn(a,b), arr[0]);
+    let tieArr = arr.filter(x => asNum(x[col]) === asNum(best[col]));
+    let winner = tieArr.sort((a,b) => asNum(b["Match Played"]) - asNum(a["Match Played"]))[0];
+    let val = asNum(winner[col]);
+    if (postFn) val = postFn(val);
+    return { value: val != null ? val : "NA", player: winner.Player || "NA" };
+  }
+  let highlights = [
+    { label: "Best 3 Dart Avg", ...bestStat("3 Dart Avg", (a,b) => asNum(b["3 Dart Avg"])>asNum(a["3 Dart Avg"])?b:a) },
+    { label: "Best Win Rate (Legs)", ...bestStat("Win Rate (Legs)", (a,b) => asNum(b["Win Rate (Legs)"])>asNum(a["Win Rate (Legs)"])?b:a, v => (v*100).toFixed(1)+"%") },
+    { label: "Best Win Rate (Sets)", ...bestStat("Win Rate (Sets)", (a,b) => asNum(b["Win Rate (Sets)"])>asNum(a["Win Rate (Sets)"])?b:a, v => (v*100).toFixed(1)+"%") },
+    { label: "High Finish", ...bestStat("High Finish", (a,b) => asNum(b["High Finish"])>asNum(a["High Finish"])?b:a) },
+    { label: "Best First 9 Avg", ...bestStat("First 9 Avg", (a,b) => asNum(b["First 9 Avg"])>asNum(a["First 9 Avg"])?b:a) },
+    { 
+      label: "Best Leg", 
+      ...bestStat(
+        "Best Leg", 
+        (a, b) => asNum(b["Best Leg"]) < asNum(a["Best Leg"]) ? b : a,
+        null,
+        (p) => asNum(p["Best Leg"]) <= 5
+      )
     }
-    let highlights = [
-      { label: "Best 3 Dart Avg", ...bestStat("3 Dart Avg", (a,b) => asNum(b["3 Dart Avg"])>asNum(a["3 Dart Avg"])?b:a) },
-      { label: "Best Win Rate (Legs)", ...bestStat("Win Rate (Legs)", (a,b) => asNum(b["Win Rate (Legs)"])>asNum(a["Win Rate (Legs)"])?b:a, v => (v*100).toFixed(1)+"%") },
-      { label: "Best Win Rate (Sets)", ...bestStat("Win Rate (Sets)", (a,b) => asNum(b["Win Rate (Sets)"])>asNum(a["Win Rate (Sets)"])?b:a, v => (v*100).toFixed(1)+"%") },
-      { label: "High Finish", ...bestStat("High Finish", (a,b) => asNum(b["High Finish"])>asNum(a["High Finish"])?b:a) },
-      { label: "Best First 9 Avg", ...bestStat("First 9 Avg", (a,b) => asNum(b["First 9 Avg"])>asNum(a["First 9 Avg"])?b:a) },
-      { 
-    label: "Best Leg", 
-    ...bestStat(
-      "Best Leg", 
-      (a, b) => asNum(b["Best Leg"]) < asNum(a["Best Leg"]) ? b : a,
-      null,
-      (p) => asNum(p["Best Leg"]) <= 5
-    )
-  }
-];
-    document.getElementById('stat-highlights').innerHTML = highlights.map(h => `
-      <div class="stat-card">
-        <span class="label">${h.label}</span>
-        <span class="value">${h.value}</span>
-        <span class="player">${h.player}</span>
-      </div>
-    `).join('');
-  }
+  ];
+  document.getElementById('stat-highlights').innerHTML = highlights.map(h => `
+    <div class="stat-card">
+      <span class="label">${h.label}</span>
+      <span class="value">${h.value}</span>
+      <span class="player">${h.player}</span>
+    </div>
+  `).join('');
+}
 
   /* --- Quick Standings --- */
   function renderQuickStandings() {
