@@ -608,8 +608,16 @@
       { label: "Best Win Rate (Sets)", ...bestStat("Win Rate (Sets)", (a,b) => asNum(b["Win Rate (Sets)"])>asNum(a["Win Rate (Sets)"])?b:a, v => (v*100).toFixed(1)+"%") },
       { label: "High Finish", ...bestStat("High Finish", (a,b) => asNum(b["High Finish"])>asNum(a["High Finish"])?b:a) },
       { label: "Best First 9 Avg", ...bestStat("First 9 Avg", (a,b) => asNum(b["First 9 Avg"])>asNum(a["First 9 Avg"])?b:a) },
-      { label: "Best Leg", ...bestStat("Best Leg", (a,b) => asNum(b["Best Leg"])<asNum(a["Best Leg"])?b:a) }
-    ];
+      { 
+    label: "Best Leg", 
+    ...bestStat(
+      "Best Leg", 
+      (a, b) => asNum(b["Best Leg"]) < asNum(a["Best Leg"]) ? b : a,
+      null,
+      (p) => asNum(p["Best Leg"]) <= 5
+    )
+  }
+];
     document.getElementById('stat-highlights').innerHTML = highlights.map(h => `
       <div class="stat-card">
         <span class="label">${h.label}</span>
@@ -646,56 +654,56 @@
 
   /* --- Today's Fixtures --- */
   function renderTodayFixtures() {
-    if (!fixturesData.length) {
-      document.getElementById('today-fixtures').innerHTML =
-        `<div style="color:#888;padding:12px">No fixtures scheduled for today.</div>`;
-      return;
-    }
-    let todayStr = new Date().toISOString().slice(0,10);
-    let todays = fixturesData.filter(f => formatDate(f.Date) === todayStr);
-    if (!todays.length) {
-      document.getElementById('today-fixtures').innerHTML =
-        `<div style="color:#888;padding:12px">No fixtures scheduled for today.</div>`;
-      return;
-    }
-    let out = `<table class="fixtures-table">
-      <tr><th>Team 1</th><th></th><th>Team 2</th><th>Time</th></tr>`;
-    todays.forEach(f => {
-      out += `<tr>
-        <td>${f["Team 1"]||""}</td><td style="color:#a81100;font-weight:700;">vs</td>
-        <td>${f["Team 2"]||""}</td><td>${formatTime(f.Time||f.Date)}</td>
-      </tr>`;
-    });
-    out += `</table>`;
-    document.getElementById('today-fixtures').innerHTML = out;
+  if (!fixturesData.length) {
+    document.getElementById('today-fixtures').innerHTML =
+      `<div style="color:#888;padding:12px">No fixtures scheduled for today.</div>`;
+    return;
   }
+  let todayStr = new Date().toISOString().slice(0,10);
+  let todays = fixturesData.filter(f => formatDate(f.Date) === todayStr);
+  if (!todays.length) {
+    document.getElementById('today-fixtures').innerHTML =
+      `<div style="color:#888;padding:12px">No fixtures scheduled for today.</div>`;
+    return;
+  }
+  let out = `<table class="fixtures-table">
+    <tr><th>Team A</th><th></th><th>Team B</th><th>Time</th></tr>`;
+  todays.forEach(f => {
+    out += `<tr>
+      <td>${f["Team A"]||""}</td><td style="color:#a81100;font-weight:700;">vs</td>
+      <td>${f["Team B"]||""}</td><td>${formatTime(f.Time||f.Date)}</td>
+    </tr>`;
+  });
+  out += `</table>`;
+  document.getElementById('today-fixtures').innerHTML = out;
+}
 
   /* --- Fixtures Page --- */
   function renderFixturesList() {
-    if (!fixturesData.length) {
-      document.getElementById('fixtures-list').innerHTML =
-        `<div style="color:#888;padding:10px">No fixtures loaded.</div>`;
-      return;
-    }
-    let byDate = {};
-    fixturesData.forEach(f => {
-      let date = formatDate(f.Date);
-      if (f["Team 1"] && f["Team 2"]) (byDate[date] = byDate[date]||[]).push(f);
-    });
-    let out = '';
-    Object.entries(byDate).sort().forEach(([date, matches]) => {
-      out += `<div class="date-group"><div class="date-label">${date}</div>
-        <table><tr><th>Team 1</th><th></th><th>Team 2</th><th>Time</th></tr>`;
-      matches.forEach(f => {
-        out += `<tr>
-          <td>${f["Team 1"]}</td><td style="color:#a81100;font-weight:700;">vs</td>
-          <td>${f["Team 2"]}</td><td>${formatTime(f.Time||f.Date)}</td>
-        </tr>`;
-      });
-      out += `</table></div>`;
-    });
-    document.getElementById('fixtures-list').innerHTML = out;
+  if (!fixturesData.length) {
+    document.getElementById('fixtures-list').innerHTML =
+      `<div style="color:#888;padding:10px">No fixtures loaded.</div>`;
+    return;
   }
+  let byDate = {};
+  fixturesData.forEach(f => {
+    let date = formatDate(f.Date);
+    if (f["Team A"] && f["Team B"]) (byDate[date] = byDate[date]||[]).push(f);
+  });
+  let out = '';
+  Object.entries(byDate).sort().forEach(([date, matches]) => {
+    out += `<div class="date-group"><div class="date-label">${date}</div>
+      <table><tr><th>Team A</th><th></th><th>Team B</th><th>Time</th></tr>`;
+    matches.forEach(f => {
+      out += `<tr>
+        <td>${f["Team A"]}</td><td style="color:#a81100;font-weight:700;">vs</td>
+        <td>${f["Team B"]}</td><td>${formatTime(f.Time||f.Date)}</td>
+      </tr>`;
+    });
+    out += `</table></div>`;
+  });
+  document.getElementById('fixtures-list').innerHTML = out;
+}
 
   /* --- Results Page --- */
   function renderResultsList() {
