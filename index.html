@@ -654,18 +654,35 @@
       `<div style="color:#888;padding:12px">No fixtures scheduled for today.</div>`;
     return;
   }
-  let todayStr = new Date().toISOString().slice(0,10);
-  let todays = fixturesData.filter(f => formatDate(f.Date) === todayStr);
+  // Get today's day and month as numbers
+  let today = new Date();
+  let todayDay = today.getDate();
+  let todayMonth = today.getMonth(); // 0-based
+
+  // Find fixtures where Date matches today (e.g., "6 July")
+  let todays = fixturesData.filter(f => {
+    if (!f.Date) return false;
+    // Parse day and month from "6 July"
+    let parts = f.Date.split(' ');
+    if (parts.length < 2) return false;
+    let day = parseInt(parts[0], 10);
+    let monthStr = parts[1].toLowerCase();
+    let monthNum = [
+      "january","february","march","april","may","june","july","august",
+      "september","october","november","december"
+    ].indexOf(monthStr);
+    return day === todayDay && monthNum === todayMonth;
+  });
+
   if (!todays.length) {
     document.getElementById('today-fixtures').innerHTML =
       `<div style="color:#888;padding:12px">No fixtures scheduled for today.</div>`;
     return;
   }
   let out = `<table class="fixtures-table">
-    <tr><th>Date</th><th>Time</th><th>Team A</th><th></th><th>Team B</th></tr>`;
+    <tr><th>Time</th><th>Team A</th><th></th><th>Team B</th></tr>`;
   todays.forEach(f => {
     out += `<tr>
-      <td>${f.Date || ""}</td>
       <td>${f.Time || ""}</td>
       <td>${f["Team A"]||""}</td>
       <td style="color:#a81100;font-weight:700;">vs</td>
@@ -683,19 +700,26 @@
       `<div style="color:#888;padding:10px">No fixtures loaded.</div>`;
     return;
   }
+  // Group fixtures by the raw Date field (e.g. "6 July", "8 July")
   let byDate = {};
   fixturesData.forEach(f => {
-    let date = formatDate(f.Date);
-    if (f["Team A"] && f["Team B"]) (byDate[date] = byDate[date]||[]).push(f);
+    let dateLabel = f.Date || ""; // Group by the display date, not ISO
+    if (f["Team A"] && f["Team B"]) (byDate[dateLabel] = byDate[dateLabel]||[]).push(f);
   });
   let out = '';
-  Object.entries(byDate).sort().forEach(([date, matches]) => {
-    out += `<div class="date-group"><div class="date-label">${date}</div>
+  // Keep dates in chronological order (sort by Date object if possible)
+  let dateKeys = Object.keys(byDate).sort((a,b)=>{
+    // Try to parse "6 July" as date for sort
+    let d1 = Date.parse(a + " 2025"), d2 = Date.parse(b + " 2025");
+    return (isNaN(d1)||isNaN(d2)) ? a.localeCompare(b) : d1-d2;
+  });
+  dateKeys.forEach(dateLabel => {
+    let matches = byDate[dateLabel];
+    out += `<div class="date-group"><div class="date-label">${dateLabel}</div>
       <table>
-        <tr><th>Date</th><th>Time</th><th>Team A</th><th></th><th>Team B</th></tr>`;
+        <tr><th>Time</th><th>Team A</th><th></th><th>Team B</th></tr>`;
     matches.forEach(f => {
       out += `<tr>
-        <td>${f.Date || ""}</td>
         <td>${f.Time || ""}</td>
         <td>${f["Team A"]}</td>
         <td style="color:#a81100;font-weight:700;">vs</td>
