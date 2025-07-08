@@ -33,7 +33,7 @@
     }
     body { display: flex; flex-direction: column; min-height: 100vh; }
 
-    /* Mobile-optimized header and nav */
+    /* --- Header & Navigation --- */
     header {
       background: var(--surface);
       box-shadow: var(--shadow);
@@ -134,6 +134,7 @@
       nav button { font-size: .93em; min-width: 54px; padding: 6px 3px;}
     }
 
+    /* --- Main and Sections --- */
     main {
       flex: 1;
       padding: 10px 0 23px 0;
@@ -143,13 +144,51 @@
       min-height: 60vh;
       background: var(--background);
     }
+    section[hidden] { display: none !important; }
     .tab-title {
       font-size: 1.13em;
       font-weight: 700;
       margin: 17px 0 11px 3px;
       color: var(--primary);
     }
-    section[hidden] { display: none !important; }
+    .fixtures-list, .results-list { margin-bottom: 30px; }
+    .fixtures-list .date-group, .results-list .date-group {
+      margin-bottom: 17px;
+    }
+    .fixtures-list .date-label, .results-list .date-label {
+      font-weight: 700;
+      font-size: 1.07em;
+      margin: 12px 0 8px 3px;
+      color: var(--primary);
+    }
+    .fixtures-list table, .results-list table, .standings-table, .stats-table, .squads-table, .top10-table, .fixtures-table {
+      width: 100%;
+      border-spacing: 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 1px 10px #0001;
+      background: var(--surface);
+      font-size: 1em;
+    }
+    .fixtures-list th, .results-list th, .standings-table th, .stats-table th, .squads-table th, .top10-table th, .fixtures-table th {
+      background: #f5f5f5;
+      padding: 9px 6px;
+      font-size: 1em;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .fixtures-list td, .results-list td, .standings-table td, .stats-table td, .squads-table td, .top10-table td, .fixtures-table td {
+      padding: 8px 5px;
+      text-align: center;
+      font-size: 0.97em;
+      border-bottom: 1px solid var(--border);
+    }
+    @media (max-width:600px) {
+      .fixtures-list table, .fixtures-table { font-size: 0.97em; }
+    }
 
     .highlight-cards {
       display: grid;
@@ -220,144 +259,7 @@
     .cup-gold { background: linear-gradient(90deg, var(--gold) 95%, #fff5 100%); }
     .cup-silver { background: linear-gradient(90deg, var(--silver) 95%, #fff 100%); }
     .cup-eliminated { background: var(--eliminated); }
-    .fixtures-list, .results-list { margin-bottom: 30px; }
-    .fixtures-list .date-group, .results-list .date-group {
-      margin-bottom: 17px;
-    }
-    .fixtures-list .date-label, .results-list .date-label {
-      font-weight: 700;
-      font-size: 1.07em;
-      margin: 12px 0 8px 3px;
-      color: var(--primary);
-    }
-    .fixtures-list table, .fixtures-table, .results-list table, .standings-table, .stats-table, .squads-table, .top10-table {
-      width: 100%;
-      border-spacing: 0;
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: 0 1px 10px #0001;
-      background: var(--surface);
-      font-size: 1em;
-    }
-    .fixtures-list th, .fixtures-table th, .results-list th, .standings-table th, .stats-table th, .squads-table th, .top10-table th {
-      background: #f5f5f5;
-      padding: 9px 6px;
-      font-size: 1em;
-      font-weight: 700;
-      color: var(--primary);
-      text-align: center;
-      cursor: pointer;
-      user-select: none;
-    }
-    .fixtures-list td, .fixtures-table td, .results-list td, .standings-table td, .stats-table td, .squads-table td, .top10-table td {
-      padding: 8px 5px;
-      text-align: center;
-      font-size: 0.97em;
-      border-bottom: 1px solid var(--border);
-    }
-    .winner-cell {
-      font-weight: 700;
-      color: #388700;
-      background: #e9ffe3;
-      border-radius: 8px;
-    }
-    .stats-table .player-link, .squads-table .player-link {
-      color: var(--primary);
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: underline dotted;
-      background: none;
-      border: none;
-      padding: 0;
-    }
-    .team-filter {
-      width: 180px;
-      margin: 8px 0 14px 0;
-      border-radius: 18px;
-      padding: 8px 10px;
-      border: 1px solid #ccc;
-      font-size: 1em;
-      background: #fff;
-      color: #222;
-    }
-    .popup-backdrop {
-      display: none;
-      position: fixed;
-      z-index: 99;
-      left: 0; top: 0; width: 100vw; height: 100vh;
-      background: #0006;
-      align-items: center; justify-content: center;
-      transition: opacity 0.13s;
-    }
-    .popup-backdrop.show { display: flex; }
-    .popup-card {
-      background: #fff;
-      border-radius: 32px;
-      box-shadow: 0 8px 40px #0003;
-      padding: 30px 32px 25px 32px;
-      max-width: 98vw;
-      min-width: 290px;
-      width: 420px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      animation: popupAppear 0.22s cubic-bezier(.68,-0.55,.27,1.55);
-    }
-    @keyframes popupAppear { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .popup-card img {
-      width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
-      border: 4px solid var(--primary); background: #fff;
-      margin-bottom: 12px;
-    }
-    .popup-card .name { font-size: 1.44rem; font-weight: 800; color: var(--primary); }
-    .popup-card .team { font-size: 1.07rem; color: #555; margin-bottom: 13px;}
-    .popup-card .stats-sections {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px 28px;
-      margin-top: 6px;
-      margin-bottom: 7px;
-      width: 100%;
-    }
-    .popup-card .stat-group-title {
-      color: var(--primary); font-weight: 700; margin: 7px 0 4px 0;
-      font-size: 1.05em;
-      grid-column: 1 / span 2;
-    }
-    .popup-card table.stats-list {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 4px;
-    }
-    .popup-card .stats-list td {
-      padding: 4px 6px 4px 0;
-      text-align: left;
-      font-size: 0.98em;
-    }
-    .popup-card .stats-list td:first-child { font-weight: 600; color: #444;}
-    .popup-card .stats-list td:last-child { font-weight: 700; color: var(--accent);}
-    .popup-card .close-btn {
-      position: absolute; top: 13px; right: 16px;
-      font-size: 1.7em; color: #888; background: none;
-      border: none; cursor: pointer; transition: color 0.17s;
-    }
-    .popup-card .close-btn:hover { color: var(--primary);}
-    .save-card-btn {
-      margin-top: 20px;
-      background: var(--primary);
-      color: #fff;
-      font-weight: 700;
-      padding: 10px 19px;
-      border: none;
-      border-radius: 20px;
-      font-size: 1.04em;
-      box-shadow: 0 1px 10px #0001;
-      cursor: pointer;
-      transition: background 0.19s;
-    }
-    .save-card-btn:hover { background: #600900; }
-    /* --- Top 10 Cards --- */
+
     .top10-card-row {
       display: flex;
       gap: 18px;
@@ -411,16 +313,10 @@
       margin-top: 7px;
     }
     @media (max-width: 600px) {
-      main { padding: 13px 0 25px 0; }
-      .highlight-cards { grid-template-columns: 1fr; }
-      .fixtures-list table, .fixtures-table {
-        font-size: 0.97em;
-      }
-      .popup-card { width: 99vw; min-width: 0; padding: 18px 6vw 12px 6vw;}
-      .tab-title { font-size: 1.07em;}
       .top10-card { min-width: 155px; padding: 15px 5px 11px 7px;}
       .top10-card .player-btn { font-size: 1em;}
     }
+
     #squads-list { margin-top: 10px; }
     .squad-team-section { margin-bottom: 19px; }
     .squad-team-name { font-size: 1.12em; font-weight: 700; color: var(--primary); margin: 2px 0 5px 0; padding-left: 5px; }
@@ -450,6 +346,13 @@
       margin: 0 0 2px 0;
     }
     .squad-player-card .squad-sets { color: #666; font-size: 0.92em; }
+
+    .winner-cell {
+      font-weight: 700;
+      color: #388700;
+      background: #e9ffe3;
+      border-radius: 8px;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
@@ -525,7 +428,7 @@
 </footer>
 
 <script>
-  // CONFIG: Change this to your live API endpoint
+  // CONFIG: Set to your live API endpoint and fixtures JSON path
   const API_URL = "https://script.google.com/macros/s/AKfycbxg9ASk6TWcgMn4O25XgTtHdxOULY-Dlw6UpcyzWpBwEXXlNS_FoOi4BVjR4HBS55QU7A/exec";
   const LOGO_URL = "https://i.postimg.cc/jSXT8DK8/temp-Image-El-Y5kn.avif";
   const FIXTURES_JSON_URL = "csvjson.json"; // Your uploaded fixtures file
@@ -593,30 +496,35 @@
     return isNaN(d.getTime()) ? "" : d;
   }
 
-  function formatTime(d) {
+  function formatDate(d) {
+    // Parse "6 July" style to ISO string for comparison, else fallback
     if (!d) return "";
-    if (typeof d === "string" && d.match(/^\d\d?:\d\d$/)) return d;
-    if (!(d instanceof Date)) d = parseDateTime(d);
+    if (typeof d === "string" && /\d{1,2} [A-Za-z]+/.test(d)) {
+      let parts = d.split(' ');
+      let day = parseInt(parts[0], 10);
+      let monthStr = parts[1].toLowerCase();
+      let monthNum = [
+        "january","february","march","april","may","june","july","august",
+        "september","october","november","december"
+      ].indexOf(monthStr);
+      let dt = new Date(new Date().getFullYear(), monthNum, day);
+      return !isNaN(dt.getTime()) ? dt.toISOString().slice(0,10) : d;
+    }
+    let dt2 = new Date(d);
+    return isNaN(dt2.getTime()) ? d : dt2.toISOString().slice(0,10);
+  }
+
+  function formatTime(val) {
+    if (!val) return "";
+    // If time is already "18:30", just return it
+    if (/^\d{1,2}:\d{2}/.test(val)) return val;
+    // Otherwise, fallback to date parsing
+    let d = parseDateTime(val);
     if (!d) return "";
     let hh = d.getHours(), mm = d.getMinutes();
     let ampm = hh >= 12 ? "PM" : "AM";
     let hour = ((hh + 11) % 12 + 1);
     return hour + ":" + (mm < 10 ? "0" : "") + mm + " " + ampm;
-  }
-
-  function formatDate(d) {
-    if (!d) return "";
-    if (typeof d === "string" && /\d{1,2} [A-Za-z]+/.test(d)) {
-      // "6 July"
-      let parts = d.split(' ');
-      let day = parts[0];
-      let month = parts[1];
-      let date = new Date(` , `);
-      if (!isNaN(date)) return date.toISOString().slice(0,10);
-    }
-    if (!(d instanceof Date)) d = parseDateTime(d);
-    if (!d) return "";
-    return d.toISOString().slice(0,10);
   }
 
   function renderAll() {
@@ -631,7 +539,52 @@
     renderSquadsList();
   }
 
-  /* --- Stat Highlights --- */
+  /* --- Today’s Fixtures (Home) --- */
+  function renderTodayFixtures() {
+    if (!fixturesData.length) {
+      document.getElementById('today-fixtures').innerHTML =
+        `<div style="color:#888;padding:12px">No fixtures scheduled for today.</div>`;
+      return;
+    }
+    // Get today's day and month as numbers
+    let today = new Date();
+    let todayDay = today.getDate();
+    let todayMonth = today.getMonth(); // 0-based
+
+    // Find fixtures where Date matches today (e.g., "6 July")
+    let todays = fixturesData.filter(f => {
+      if (!f.Date) return false;
+      let parts = f.Date.split(' ');
+      if (parts.length < 2) return false;
+      let day = parseInt(parts[0], 10);
+      let monthStr = parts[1].toLowerCase();
+      let monthNum = [
+        "january","february","march","april","may","june","july","august",
+        "september","october","november","december"
+      ].indexOf(monthStr);
+      return day === todayDay && monthNum === todayMonth;
+    });
+
+    if (!todays.length) {
+      document.getElementById('today-fixtures').innerHTML =
+        `<div style="color:#888;padding:12px">No fixtures scheduled for today.</div>`;
+      return;
+    }
+    let out = `<table class="fixtures-table">
+      <tr><th>Time</th><th>Team A</th><th></th><th>Team B</th></tr>`;
+    todays.forEach(f => {
+      out += `<tr>
+        <td>${f.Time || ""}</td>
+        <td>${f["Team A"]||""}</td>
+        <td style="color:#a81100;font-weight:700;">vs</td>
+        <td>${f["Team B"]||""}</td>
+      </tr>`;
+    });
+    out += `</table>`;
+    document.getElementById('today-fixtures').innerHTML = out;
+  }
+
+  /* --- Stat Highlights (no Best Leg) --- */
   function renderStatHighlights() {
     if (!statsData.length) return;
     function bestStat(col, bestFn, postFn) {
@@ -653,114 +606,42 @@
     ];
     document.getElementById('stat-highlights').innerHTML = highlights.map(h => `
       <div class="stat-card">
-        <span class="label"></span>
-        <span class="value"></span>
-        <span class="player"></span>
+        <span class="label">${h.label}</span>
+        <span class="value">${h.value}</span>
+        <span class="player">${h.player}</span>
       </div>
     `).join('');
   }
 
-  /* --- Quick Standings --- */
-  function renderQuickStandings() {
-    if (!standingsData.length) return;
-    let byGroup = {};
-    standingsData.forEach(row => {
-      let g = row.Group || "A";
-      (byGroup[g] = byGroup[g]||[]).push(row);
-    });
-    let out = '';
-    Object.entries(byGroup).forEach(([group, teams]) => {
-      teams.sort((a, b) => (+b.Points||0) - (+a.Points||0) || (+b["+/-"]||0) - (+a["+/-"]||0));
-      out += `<tr><th colspan="10" style="background:var(--primary);color:#fff;font-size:1.1em;"></th></tr>`;
-      out += `<tr><th>Pos</th><th>Team</th><th>P</th><th>W</th><th>L</th><th>D</th><th>For</th><th>Against</th><th>+/-</th><th>Points</th></tr>`;
-      teams.forEach((t,i) => {
-        let cup = getCupByPosition(i+1);
-        let diff = (t["+/-"] === "#ERROR!" || t["+/-"] == null) ? "-" : t["+/-"];
-        out += `<tr class="cup-">
-          <td></td><td></td><td></td><td></td><td></td>
-          <td></td><td></td><td></td><td></td><td></td>
-        </tr>`;
-      });
-    });
-    document.getElementById('quick-standings').innerHTML = out;
-  }
-
-  /* --- Today's Fixtures --- */
-  function renderTodayFixtures() {
-    if (!fixturesData.length) {
-      document.getElementById('today-fixtures').innerHTML =
-        `<div style="color:#888;padding:12px">No fixtures scheduled for today.</div>`;
-      return;
-    }
-    // Get today's day and month as numbers
-    let today = new Date();
-    let todayDay = today.getDate();
-    let todayMonth = today.getMonth(); // 0-based
-
-    // Find fixtures where Date matches today (e.g., "6 July")
-    let todays = fixturesData.filter(f => {
-      if (!f.Date) return false;
-      // Parse day and month from "6 July"
-      let parts = f.Date.split(' ');
-      if (parts.length < 2) return false;
-      let day = parseInt(parts[0], 10);
-      let monthStr = parts[1].toLowerCase();
-      let monthNum = [
-        "january","february","march","april","may","june","july","august",
-        "september","october","november","december"
-      ].indexOf(monthStr);
-      return day === todayDay && monthNum === todayMonth;
-    });
-
-    if (!todays.length) {
-      document.getElementById('today-fixtures').innerHTML =
-        `<div style="color:#888;padding:12px">No fixtures scheduled for today.</div>`;
-      return;
-    }
-    let out = `<table class="fixtures-table">
-      <tr><th>Time</th><th>Team A</th><th></th><th>Team B</th></tr>`;
-    todays.forEach(f => {
-      out += `<tr>
-        <td></td>
-        <td></td>
-        <td style="color:#a81100;font-weight:700;">vs</td>
-        <td></td>
-      </tr>`;
-    });
-    out += `</table>`;
-    document.getElementById('today-fixtures').innerHTML = out;
-  }
-
-  /* --- Fixtures Page --- */
+  /* --- Fixtures Page: Group by Date --- */
   function renderFixturesList() {
     if (!fixturesData.length) {
       document.getElementById('fixtures-list').innerHTML =
         `<div style="color:#888;padding:10px">No fixtures loaded.</div>`;
       return;
     }
-    // Group fixtures by the raw Date field (e.g. "6 July", "8 July")
+    // Group by the raw Date field (e.g. "6 July", "8 July")
     let byDate = {};
     fixturesData.forEach(f => {
       let dateLabel = f.Date || "";
       if (f["Team A"] && f["Team B"]) (byDate[dateLabel] = byDate[dateLabel]||[]).push(f);
     });
     let out = '';
-    // Keep dates in chronological order (sort by Date object if possible)
     let dateKeys = Object.keys(byDate).sort((a,b)=>{
       let d1 = Date.parse(a + " 2025"), d2 = Date.parse(b + " 2025");
       return (isNaN(d1)||isNaN(d2)) ? a.localeCompare(b) : d1-d2;
     });
     dateKeys.forEach(dateLabel => {
       let matches = byDate[dateLabel];
-      out += `<div class="date-group"><div class="date-label"></div>
+      out += `<div class="date-group"><div class="date-label">${dateLabel}</div>
         <table>
           <tr><th>Time</th><th>Team A</th><th></th><th>Team B</th></tr>`;
       matches.forEach(f => {
         out += `<tr>
-          <td></td>
-          <td></td>
+          <td>${f.Time || ""}</td>
+          <td>${f["Team A"]}</td>
           <td style="color:#a81100;font-weight:700;">vs</td>
-          <td></td>
+          <td>${f["Team B"]}</td>
         </tr>`;
       });
       out += `</table></div>`;
@@ -768,7 +649,7 @@
     document.getElementById('fixtures-list').innerHTML = out;
   }
 
-  /* --- Results Page --- */
+  /* --- Results Page: Group by Group/Date --- */
   function renderResultsList() {
     if (!resultsData.length) {
       document.getElementById('results-list').innerHTML =
@@ -789,17 +670,17 @@
         (byDate[date] = byDate[date] || []).push(r);
       });
       out += `<div style="margin-bottom:30px">
-        <div style="font-size:1.12em;font-weight:800;color:var(--primary);margin:12px 0 7px 3px;">Group: </div>`;
+        <div style="font-size:1.12em;font-weight:800;color:var(--primary);margin:12px 0 7px 3px;">Group: ${group}</div>`;
       Object.entries(byDate).sort((a,b)=>b[0].localeCompare(a[0])).forEach(([date, games]) => {
-        out += `<div class="date-group"><div class="date-label"></div>
+        out += `<div class="date-group"><div class="date-label">${date}</div>
           <table><tr><th>Team A</th><th></th><th>Team B</th><th>Score</th><th>Winner</th></tr>`;
         games.forEach(r => {
           let a = +r["Score A"]||0, b = +r["Score B"]||0;
           let win = r.Winner || (a > b ? r["Team A"] : b > a ? r["Team B"] : "Draw");
           out += `<tr>
-            <td></td><td style="color:#a81100;font-weight:700;">vs</td>
-            <td></td><td> - </td>
-            <td class="winner-cell"></td>
+            <td>${r["Team A"]}</td><td style="color:#a81100;font-weight:700;">vs</td>
+            <td>${r["Team B"]}</td><td>${a} - ${b}</td>
+            <td class="winner-cell">${win}</td>
           </tr>`;
         });
         out += `</table></div>`;
@@ -807,6 +688,31 @@
       out += `</div>`;
     });
     document.getElementById('results-list').innerHTML = out;
+  }
+
+  /* --- Quick Standings (Home) --- */
+  function renderQuickStandings() {
+    if (!standingsData.length) return;
+    let byGroup = {};
+    standingsData.forEach(row => {
+      let g = row.Group || "A";
+      (byGroup[g] = byGroup[g]||[]).push(row);
+    });
+    let out = '';
+    Object.entries(byGroup).forEach(([group, teams]) => {
+      teams.sort((a, b) => (+b.Points||0) - (+a.Points||0) || (+b["+/-"]||0) - (+a["+/-"]||0));
+      out += `<tr><th colspan="10" style="background:var(--primary);color:#fff;font-size:1.1em;">${group}</th></tr>`;
+      out += `<tr><th>Pos</th><th>Team</th><th>P</th><th>W</th><th>L</th><th>D</th><th>For</th><th>Against</th><th>+/-</th><th>Points</th></tr>`;
+      teams.forEach((t,i) => {
+        let cup = getCupByPosition(i+1);
+        let diff = (t["+/-"] === "#ERROR!" || t["+/-"] == null) ? "-" : t["+/-"];
+        out += `<tr class="cup-${cup}">
+          <td>${i+1}</td><td>${t.Team}</td><td>${t.P}</td><td>${t.W}</td><td>${t.L}</td>
+          <td>${t.D}</td><td>${t.For}</td><td>${t.Against}</td><td>${diff}</td><td>${t.Points}</td>
+        </tr>`;
+      });
+    });
+    document.getElementById('quick-standings').innerHTML = out;
   }
 
   /* --- Standings --- */
@@ -821,7 +727,7 @@
     Object.entries(byGroup).forEach(([group, teams]) => {
       teams.sort((a,b) => (+b.Points||0) - (+a.Points||0) || (+b["+/-"]||0) - (+a["+/-"]||0));
       out += `<div style="margin-bottom:23px">
-        <div style="font-size:1.11em;font-weight:700;color:var(--primary);margin:9px 0 3px 0"></div>
+        <div style="font-size:1.11em;font-weight:700;color:var(--primary);margin:9px 0 3px 0">${group}</div>
         <table class="standings-table">
           <tr><th>Pos</th><th>Team</th><th>P</th><th>W</th><th>L</th><th>D</th><th>For</th>
           <th>Against</th><th>+/-</th><th>Points</th><th>Cup</th></tr>`;
@@ -829,10 +735,10 @@
         let cup = getCupByPosition(i+1);
         let cupText = cup==='gold'?'Gold':cup==='silver'?'Silver':'Eliminated';
         let diff = (t["+/-"]==="#ERROR!"||t["+/-"]==null) ? "-" : t["+/-"];
-        out += `<tr class="cup-">
-          <td></td><td></td><td></td><td></td><td></td>
-          <td></td><td></td><td></td><td></td>
-          <td></td><td></td>
+        out += `<tr class="cup-${cup}">
+          <td>${i+1}</td><td>${t.Team}</td><td>${t.P}</td><td>${t.W}</td><td>${t.L}</td>
+          <td>${t.D}</td><td>${t.For}</td><td>${t.Against}</td><td>${diff}</td>
+          <td>${t.Points}</td><td>${cupText}</td>
         </tr>`;
       });
       out += `</table></div>`;
@@ -849,7 +755,7 @@
     ];
     let teams = Array.from(new Set(statsData.map(x=>x.Team).filter(Boolean))).sort();
     let tf = document.getElementById('team-filter');
-    tf.innerHTML = `<option value="">All Teams</option>` + teams.map(t=>`<option></option>`).join('');
+    tf.innerHTML = `<option value="">All Teams</option>` + teams.map(t=>`<option>${t}</option>`).join('');
     tf.onchange = renderStatsTable;
 
     let val = tf.value;
@@ -863,21 +769,21 @@
 
     function doStatsTable(rows, cols) {
       let ths = cols.map(c =>
-        `<th onclick="sortStatsCol('')"> <span style="font-size:0.92em;opacity:.56">${
+        `<th onclick="sortStatsCol('${c}')">${c} <span style="font-size:0.92em;opacity:.56">${
           lastSort.col===c ? (lastSort.asc ? "▲" : "▼") : ""
         }</span></th>`
       ).join('');
       let trs = rows.map(r => `<tr>` + cols.map(c => {
         if (c==="Player") {
-          return `<td><button class="player-link" onclick="showPlayerPopup('')"></button></td>`;
+          return `<td><button class="player-link" onclick="showPlayerPopup('${encodeURIComponent(r.Player)}')">${r.Player}</button></td>`;
         } else if (c.startsWith("Win Rate")) {
           let v = asNum(r[c]);
-          return `<td> ""</td>`;
+          return `<td>${v!=null ? (v*100).toFixed(1)+"%" : ""}</td>`;
         } else {
-          return `<td></td>`;
+          return `<td>${r[c]||""}</td>`;
         }
       }).join('') + `</tr>`).join('');
-      document.getElementById('stats-table').innerHTML = `<tr></tr>`;
+      document.getElementById('stats-table').innerHTML = `<tr>${ths}</tr>${trs}`;
     }
   }
 
@@ -917,18 +823,18 @@
       let top = el.slice(0,10);
       out += `<div>
         <div style="font-weight:700;font-size:1.11em;color:var(--primary);margin:7px 0 8px 0;">
-          Top 10 
+          Top 10 ${cat.label}
         </div>
         <div class="top10-card-row">`;
       top.forEach((p,i) => {
         let v = cat.compute ? p._MVP.toFixed(2)
-          : cat.key==="100+" ? p._100Total : p[cat.key];
+           : cat.key==="100+" ? p._100Total : p[cat.key];
         out += `
         <div class="top10-card">
-          <span class="rank">#</span>
-          <button class="player-btn" onclick="showPlayerPopup('')"></button>
-          <div class="team"></div>
-          <div class="value"></div>
+          <span class="rank">#${i+1}</span>
+          <button class="player-btn" onclick="showPlayerPopup('${encodeURIComponent(p.Player)}')">${p.Player}</button>
+          <div class="team">${p.Team}</div>
+          <div class="value">${v}</div>
         </div>`;
       });
       out += `</div></div>`;
@@ -953,14 +859,14 @@
     let out = '';
     Object.entries(byTeam).forEach(([team, players])=>{
       out += `<div class="squad-team-section">
-        <div class="squad-team-name"></div>
+        <div class="squad-team-name">${team}</div>
         <div class="squad-player-grid">`;
       players.forEach(p=>{
         out += `<div class="squad-player-card">
-          <button class="player-link" onclick="showPlayerPopup('')">
-            
+          <button class="player-link" onclick="showPlayerPopup('${encodeURIComponent(p.Player)}')">
+            ${p.Player}
           </button>
-          <div class="squad-sets"> Sets,  3DA</div>
+          <div class="squad-sets">${p["Sets Played"]||""} Sets, ${p["3 Dart Avg"]||""} 3DA</div>
         </div>`;
       });
       out += `</div></div>`;
@@ -973,31 +879,31 @@
     let name = decodeURIComponent(nameEnc);
     let p = statsData.find(x=>x.Player===name);
     if (!p) return;
-    let img = `<img src="" alt="Player Photo">`;
+    let img = `<img src="${LOGO_URL}" alt="Player Photo">`;
     function grp(lbl, keys) {
       let rows = keys.filter(k=>p[k]!=null).map(k=>
-        `<tr><td></td><td>p[k]</td></tr>`
+        `<tr><td>${k}</td><td>${k.includes("Win Rate")? (asNum(p[k])*100).toFixed(1)+"%":p[k]}</td></tr>`
       ).join('');
-      return rows ? `<div class="stat-group-title"></div><table class="stats-list"></table>` : '';
+      return rows ? `<div class="stat-group-title">${lbl}</div><table class="stats-list">${rows}</table>` : '';
     }
     let core = ["Sets Played","Sets Won","3 Dart Avg","First 9 Avg","High Finish","100+","140+","180's"];
     let win  = ["Match Played","Win Rate (Legs)","Win Rate (Sets)","Legs Played","Legs Won","Legs Diff"];
     let ex   = ["Best Leg","Worst Leg"];
     let other = Object.keys(p).filter(k=>![...core, ...win, ...ex].includes(k));
     let sections = `<div class="stats-sections">
-      
-      
-      
-      
+      ${grp("Core Stats", core)}
+      ${grp("Win & Rates", win)}
+      ${grp("Highlights", ex)}
+      ${grp("Other", other)}
     </div>`;
     let btn = `<button class="save-card-btn" onclick="saveCardAsImage()">Save card as image</button>`;
     document.getElementById('popup-card').innerHTML = `
       <button class="close-btn" aria-label="Close" onclick="closePopup()">&times;</button>
-      
-      <div class="name"></div>
-      <div class="team"></div>
-      
-      
+      ${img}
+      <div class="name">${p.Player}</div>
+      <div class="team">${p.Team}</div>
+      ${sections}
+      ${btn}
     `;
     document.getElementById('popup-backdrop').classList.add('show');
     document.body.style.overflow = 'hidden';
@@ -1023,3 +929,4 @@
   };
 </script>
 </body>
+</html>
