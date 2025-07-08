@@ -662,11 +662,14 @@
     return;
   }
   let out = `<table class="fixtures-table">
-    <tr><th>Team A</th><th></th><th>Team B</th><th>Time</th></tr>`;
+    <tr><th>Date</th><th>Time</th><th>Team A</th><th></th><th>Team B</th></tr>`;
   todays.forEach(f => {
     out += `<tr>
-      <td>${f["Team A"]||""}</td><td style="color:#a81100;font-weight:700;">vs</td>
-      <td>${f["Team B"]||""}</td><td>${formatTime(f.Time||f.Date)}</td>
+      <td>${f.Date || ""}</td>
+      <td>${f.Time || ""}</td>
+      <td>${f["Team A"]||""}</td>
+      <td style="color:#a81100;font-weight:700;">vs</td>
+      <td>${f["Team B"]||""}</td>
     </tr>`;
   });
   out += `</table>`;
@@ -688,11 +691,15 @@
   let out = '';
   Object.entries(byDate).sort().forEach(([date, matches]) => {
     out += `<div class="date-group"><div class="date-label">${date}</div>
-      <table><tr><th>Team A</th><th></th><th>Team B</th><th>Time</th></tr>`;
+      <table>
+        <tr><th>Date</th><th>Time</th><th>Team A</th><th></th><th>Team B</th></tr>`;
     matches.forEach(f => {
       out += `<tr>
-        <td>${f["Team A"]}</td><td style="color:#a81100;font-weight:700;">vs</td>
-        <td>${f["Team B"]}</td><td>${formatTime(f.Time||f.Date)}</td>
+        <td>${f.Date || ""}</td>
+        <td>${f.Time || ""}</td>
+        <td>${f["Team A"]}</td>
+        <td style="color:#a81100;font-weight:700;">vs</td>
+        <td>${f["Team B"]}</td>
       </tr>`;
     });
     out += `</table></div>`;
