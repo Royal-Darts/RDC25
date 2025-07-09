@@ -441,14 +441,14 @@
     });
   }
   function activateTab(tab) {
-    document.querySelectorAll('nav button').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.tab === tab);
-      if(btn.dataset.tab === tab) btn.setAttribute('aria-current','page');
-      else btn.removeAttribute('aria-current');
-    });
-    document.querySelectorAll('main > section').forEach(sec => sec.hidden = true);
-    document.getElementById('tab-' + tab).hidden = false;
-  }
+  document.querySelectorAll('nav button, .nav-drawer .nav-links button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+    if(btn.dataset.tab === tab) btn.setAttribute('aria-current','page');
+    else btn.removeAttribute('aria-current');
+  });
+  document.querySelectorAll('main > section').forEach(sec => sec.hidden = true);
+  document.getElementById('tab-' + tab).hidden = false;
+}
 
   async function fetchAllData() {
     try {
