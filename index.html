@@ -546,6 +546,48 @@
     });
     document.getElementById('fixtures-list').innerHTML = out;
   }
+function renderResultsList() {
+  if (!resultsData.length) {
+    document.getElementById('results-list').innerHTML =
+      `<div style="color:#888;padding:10px">No results loaded.</div>`;
+    return;
+  }
+  let byGroup = {};
+  resultsData.forEach(r => {
+    let group = r.Group || "Other";
+    (byGroup[group] = byGroup[group] || []).push(r);
+  });
+
+  let out = '';
+  Object.entries(byGroup).forEach(([group, matches]) => {
+    let byDate = {};
+    matches.forEach(r => {
+      let date = r.Date || '';
+      (byDate[date] = byDate[date] || []).push(r);
+    });
+    out += `<div style="margin-bottom:30px">
+      <div style="font-size:1.12em;font-weight:800;color:var(--primary);margin:12px 0 7px 3px;">Group: ${group}</div>`;
+    Object.entries(byDate).sort((a,b)=>{
+      let d1=Date.parse(a[0]+" 2025"),d2=Date.parse(b[0]+" 2025");
+      return (isNaN(d1)||isNaN(d2))?a[0].localeCompare(b[0]):d2-d1;
+    }).forEach(([date, games]) => {
+      out += `<div class="date-group"><div class="date-label">${date}</div>
+        <table><tr><th>Team A</th><th></th><th>Team B</th><th>Score</th><th>Winner</th></tr>`;
+      games.forEach(r => {
+        let a = +r["Score A"]||0, b = +r["Score B"]||0;
+        let win = r.Winner || (a > b ? r["Team A"] : b > a ? r["Team B"] : "Draw");
+        out += `<tr>
+          <td>${r["Team A"]}</td><td style="color:#a81100;font-weight:700;">vs</td>
+          <td>${r["Team B"]}</td><td>${a} - ${b}</td>
+          <td class="winner-cell">${win}</td>
+        </tr>`;
+      });
+      out += `</table></div>`;
+    });
+    out += `</div>`;
+  });
+  document.getElementById('results-list').innerHTML = out;
+}
 
   /* --- Stat Highlights (NO Best Leg) --- */
   function renderStatHighlights() {
