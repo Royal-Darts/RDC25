@@ -500,12 +500,13 @@
     });
   }
   function setupNavigation() {
-    document.querySelectorAll('nav button').forEach(btn => {
-      btn.onclick = () => { activateTab(btn.dataset.tab); };
-    });
-  }
+  // For all navs
+  document.querySelectorAll('nav button, .nav-horiz button, .nav-drawer .nav-links button').forEach(btn => {
+    btn.onclick = () => { activateTab(btn.dataset.tab); };
+  });
+}
   function activateTab(tab) {
-  document.querySelectorAll('nav button, .nav-drawer .nav-links button').forEach(btn => {
+  document.querySelectorAll('nav button, .nav-drawer .nav-links button, .nav-horiz button').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === tab);
     if(btn.dataset.tab === tab) btn.setAttribute('aria-current','page');
     else btn.removeAttribute('aria-current');
@@ -693,7 +694,11 @@
     });
     let out = '';
     Object.entries(byGroup).forEach(([group, teams]) => {
-      teams.sort((a,b) => (+b.Points||0) - (+a.Points||0) || (+b["+/-"]||0) - (+a["+/-"]||0));
+      teams.sort((a, b) =>
+  (+b.Points||0) - (+a.Points||0) ||
+  ((asNum(b.For)-asNum(b.Against)) - (asNum(a.For)-asNum(a.Against))) ||
+  (asNum(b.For) - asNum(a.For))
+);
       out += `<div style="margin-bottom:23px">
         <div style="font-size:1.11em;font-weight:700;color:var(--primary);margin:9px 0 3px 0">${group}</div>
         <table class="standings-table">
@@ -912,18 +917,13 @@
   let byTeam = {};
   statsData.forEach(p => (byTeam[p.Team] = byTeam[p.Team]||[]).push(p));
   let teams = Object.keys(byTeam).sort();
-
-  // 1. Get the current filter value before updating the dropdown
+  // Team filter dropdown
   let sel = document.getElementById('squad-team-filter');
-  let filter = sel.value || "";
-
-  // 2. Build the dropdown options only if necessary, then set the value to the previous selection
-  let optionsHtml = `<option value="">All Teams</option>` + teams.map(t=>`<option value="${t}">${t}</option>`).join('');
-  sel.innerHTML = optionsHtml;
-  sel.value = filter; // restore previous selection
+  if (sel.innerHTML === "" || sel.options.length !== teams.length+1) {
+    sel.innerHTML = `<option value="">All Teams</option>` + teams.map(t=>`<option>${t}</option>`).join('');
+  }
   sel.onchange = renderSquadsList;
-
-  // 3. Show filtered teams
+  let filter = sel.value;
   let showTeams = filter ? [filter] : teams;
   let out = '';
   showTeams.forEach(team => {
