@@ -183,9 +183,15 @@
     .stat-card .value { font-size: 1.75rem; font-weight: 900; color: var(--accent); line-height: 1.08; margin-top: 3px;}
     .stat-card .player { font-size: 1.09rem; font-weight: 500; color: var(--accent); opacity: 0.84; margin-top: -2px;}
     .highlight-footer { color: #888; font-size: 0.99em; margin-bottom: 32px; margin-left: 5px; margin-top: 6px; font-style: italic; letter-spacing: 0.01em;}
-    .quick-standings { margin-top: 14px; margin-bottom: 10px; border-radius: var(--radius); box-shadow: 0 1px 8px #0001; overflow: hidden; background: var(--surface);}
-    .quick-standings th, .quick-standings td { padding: 7px 8px; text-align: center;}
-    .quick-standings th { background: #f5f5f5; font-size: 0.98em; font-weight: 700; color: var(--primary);}
+    .quick-standings, .standings-table { margin-top: 14px; margin-bottom: 10px; border-radius: var(--radius); box-shadow: 0 1px 8px #0001; overflow-x: auto; background: var(--surface);}
+    .quick-standings th, .quick-standings td, .standings-table th, .standings-table td {
+      padding: 7px 4px; text-align: center; word-break: break-word;
+      font-size: 0.97em; min-width: 36px; max-width: 58px;
+    }
+    .quick-standings th, .standings-table th {
+      background: #f5f5f5; font-size: 0.97em; font-weight: 700; color: var(--primary);
+      min-width: 28px;
+    }
     .cup-gold { background: linear-gradient(90deg, var(--gold) 95%, #fff5 100%);}
     .cup-silver { background: linear-gradient(90deg, var(--silver) 95%, #fff 100%);}
     .cup-eliminated { background: var(--eliminated);}
@@ -197,7 +203,8 @@
     .fixtures-list td, .results-list td, .standings-table td, .stats-table td, .squads-table td, .top10-table td { padding: 8px 5px; text-align: center; font-size: 0.97em; border-bottom: 1px solid var(--border);}
     .winner-cell { font-weight: 700; color: #388700; background: #e9ffe3; border-radius: 8px;}
     .stats-table .player-link, .squads-table .player-link { color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: underline dotted; background: none; border: none; padding: 0;}
-    .team-filter { width: 180px; margin: 8px 0 14px 0; border-radius: 18px; padding: 8px 10px; border: 1px solid #ccc; font-size: 1em; background: #fff; color: #222;}
+    .team-filter { width: 170px; margin: 8px 0 14px 0; border-radius: 18px; padding: 8px 10px; border: 1px solid #ccc; font-size: 1em; background: #fff; color: #222;}
+    .squads-filter-wrap {margin-bottom: 11px;}
     /* POPUP - Small mobile fixes */
     .popup-backdrop {
       display: none;
@@ -268,6 +275,7 @@
     @media (max-width:500px) {
       .top10-list-table th, .top10-list-table td { font-size: 0.96em;}
       .popup-card { padding: 8px 3vw 7px 3vw; width: 98vw;}
+      .quick-standings th, .quick-standings td, .standings-table th, .standings-table td { font-size: 0.95em;}
     }
     #squads-list { margin-top: 10px;}
     .squad-team-section { margin-bottom: 19px;}
@@ -352,6 +360,11 @@
   </section>
   <section id="tab-squads" hidden>
     <div class="tab-title">Squads / Player List</div>
+    <div class="squads-filter-wrap">
+      <select id="squads-team-filter" class="team-filter">
+        <option value="">All Teams</option>
+      </select>
+    </div>
     <div id="squads-list"></div>
   </section>
 </main>
@@ -374,7 +387,6 @@
   let filteredStats = [];
   let lastSort = {col:null, asc:true};
 
-  // Burger nav & responsive
   document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
     setupDrawer();
@@ -401,13 +413,11 @@
   }
 
   function setupNavigation() {
-    // For both navs
     document.querySelectorAll('nav button').forEach(btn => {
       btn.onclick = () => { activateTab(btn.dataset.tab); };
     });
   }
   function activateTab(tab) {
-    // Sync both navs' active state
     document.querySelectorAll('nav button').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === tab);
       if(btn.dataset.tab === tab) btn.setAttribute('aria-current','page');
@@ -470,7 +480,6 @@
     let today = new Date();
     let todayDay = today.getDate();
     let todayMonth = today.getMonth();
-
     let todays = fixturesData.filter(f => {
       if (!f.Date) return false;
       let parts = (f.Date+"").split(' ');
@@ -579,16 +588,18 @@
     Object.entries(byGroup).forEach(([group, teams]) => {
       teams.sort((a, b) => (+b.Points||0) - (+a.Points||0) || (+b["+/-"]||0) - (+a["+/-"]||0));
       out += `<tr><th colspan="11" style="background:var(--primary);color:#fff;font-size:1.1em;">${group}</th></tr>`;
-      out += `<tr><th>Pos</th><th>Team</th><th>P</th><th>W</th><th>L</th><th>D</th><th>For</th><th>Against</th><th>+/-</th><th>Points</th></tr>`;
+      out += `<tr><th>Pos</th><th>Team</th><th>P</th><th>W</th><th>L</th><th>D</th><th>EW</th><th>EL</th><th>+/-</th><th>Pts</th></tr>`;
       teams.forEach((t,i) => {
         let cup = getCupByPosition(i+1);
-        // Calculate +/-
+        let ew = asNum(t.For) ?? ""; // EW
+        let el = asNum(t.Against) ?? ""; // EL
+        let pts = asNum(t.Points) ?? "";
         let diff = (asNum(t.For) !== null && asNum(t.Against) !== null)
           ? (asNum(t.For) - asNum(t.Against))
           : "-";
         out += `<tr class="cup-${cup}">
           <td>${i+1}</td><td>${t.Team}</td><td>${t.P}</td><td>${t.W}</td><td>${t.L}</td>
-          <td>${t.D}</td><td>${t.For}</td><td>${t.Against}</td><td>${diff}</td><td>${t.Points}</td>
+          <td>${t.D}</td><td>${ew}</td><td>${el}</td><td>${diff}</td><td>${pts}</td>
         </tr>`;
       });
     });
@@ -608,20 +619,22 @@
       out += `<div style="margin-bottom:23px">
         <div style="font-size:1.11em;font-weight:700;color:var(--primary);margin:9px 0 3px 0">${group}</div>
         <table class="standings-table">
-          <tr><th>Pos</th><th>Team</th><th>P</th><th>W</th><th>L</th><th>D</th><th>For</th>
-          <th>Against</th><th>+/-</th><th>Points</th><th>Cup</th></tr>`;
+          <tr><th>Pos</th><th>Team</th><th>P</th><th>W</th><th>L</th><th>D</th><th>EW</th>
+          <th>EL</th><th>+/-</th><th>Pts</th><th>Cup</th></tr>`;
       teams.forEach((t,i) => {
         let cup = getCupByPosition(i+1);
         let cupText = cup==='gold'?'Gold':cup==='silver'?'Silver':'Eliminated';
-        // Calculate +/-
+        let ew = asNum(t.For) ?? ""; // EW
+        let el = asNum(t.Against) ?? ""; // EL
+        let pts = asNum(t.Points) ?? "";
         let diff = (asNum(t.For) !== null && asNum(t.Against) !== null)
           ? (asNum(t.For) - asNum(t.Against))
           : "-";
         out += `<tr class="cup-${cup}">
           <td>${i+1}</td><td>${t.Team}</td><td>${t.P}</td><td>${t.W}</td><td>${t.L}</td>
-          <td>${t.D}</td><td>${t.For}</td><td>${t.Against}</td>
+          <td>${t.D}</td><td>${ew}</td><td>${el}</td>
           <td>${diff}</td>
-          <td>${t.Points}</td><td>${cupText}</td>
+          <td>${pts}</td><td>${cupText}</td>
         </tr>`;
       });
       out += `</table></div>`;
@@ -692,11 +705,53 @@
     }
   }
 
-  /* --- Top 10 Page: Tables, not cards --- */
+  /* --- Top 10 Page: MVP Normalized Calculation and tables --- */
   function renderTop10Tables() {
     if (!statsData.length) return;
+    // Compute MVP normalized values (only for players with at least 2 matches)
+    let eligible = statsData.filter(p => asNum(p["Match Played"]) >= 2);
+
+    // Find highs for normalization
+    let max3DAvg = Math.max(...eligible.map(p=>asNum(p["3 Dart Avg"])||0));
+    let maxWinPct = Math.max(...eligible.map(p=>((asNum(p["Legs Won"])||0)/(asNum(p["Legs Played"])||1))));
+    let maxLegsWon = Math.max(...eligible.map(p=>asNum(p["Legs Won"])||0));
+    let maxHighFinish = Math.max(...eligible.map(p=>asNum(p["High Finish"])||0));
+
+    // Get team ranks (from standings, by Points desc, then +/-)
+    let teamOrder = [];
+    if (standingsData.length) {
+      let grouped = {};
+      standingsData.forEach(t=> (grouped[t.Group||"A"] = grouped[t.Group||"A"]||[]).push(t));
+      Object.values(grouped).forEach(teams => {
+        teams.sort((a, b) => (+b.Points||0) - (+a.Points||0) || ((asNum(b.For)||0)-(asNum(b.Against)||0)) - ((asNum(a.For)||0)-(asNum(a.Against)||0)));
+        teams.forEach(t => teamOrder.push(t.Team));
+      });
+    } else {
+      teamOrder = Array.from(new Set(statsData.map(x=>x.Team))).sort();
+    }
+    let totalTeams = teamOrder.length;
+
+    // Build MVP scores
+    eligible.forEach(p => {
+      let normAvg = max3DAvg ? (asNum(p["3 Dart Avg"])||0)/max3DAvg : 0;
+      let legsPlayed = asNum(p["Legs Played"])||0;
+      let legsWon = asNum(p["Legs Won"])||0;
+      let winPct = legsPlayed ? (legsWon/legsPlayed) : 0;
+      let normWinRate = maxWinPct ? winPct/maxWinPct : 0;
+      let normLegsWon = maxLegsWon ? (legsWon/maxLegsWon) : 0;
+      let normHighFinish = maxHighFinish ? (asNum(p["High Finish"])||0)/maxHighFinish : 0;
+      let teamRank = teamOrder.indexOf(p.Team) + 1;
+      let teamScore = totalTeams > 1 ? (1 - ((teamRank-1)/(totalTeams-1))) : 1;
+      p._MVP = normAvg*0.35 + normWinRate*0.25 + normLegsWon*0.20 + normHighFinish*0.05 + teamScore*0.15;
+      p._NormAvg = normAvg;
+      p._NormWinRate = normWinRate;
+      p._NormLegsWon = normLegsWon;
+      p._NormHighFinish = normHighFinish;
+      p._TeamSuccess = teamScore;
+    });
+
     const cats = [
-      { label:"MVP", key:"MVP", compute:calcMvpScore, min:2 },
+      { label:"MVP", key:"_MVP", min:2, isMVP:true },
       { label:"3 Dart Avg", key:"3 Dart Avg", min:2 },
       { label:"First 9 Avg", key:"First 9 Avg", min:2 },
       { label:"100+ Scores", key:"100+", min:2 },
@@ -705,21 +760,17 @@
     let out = '';
     cats.forEach(cat => {
       let el = statsData.filter(p=>+p["Match Played"]>=cat.min);
-      if (cat.compute) el.forEach(p=> p._MVP = cat.compute(p));
+      if (cat.isMVP) el = eligible.slice().sort((a,b) => (b._MVP||0)-(a._MVP||0));
       if (cat.key==="100+") el.forEach(p=> p._100Total = (+p["100+"]||0)+(+p["140+"]||0)+(+p["170+"]||0)+(+p["180's"]||0));
-      el.sort((a,b) => {
-        if (cat.compute) return b._MVP - a._MVP;
-        if (cat.key==="100+") return b._100Total - a._100Total;
-        return (+b[cat.key]||0) - (+a[cat.key]||0);
-      });
+      if (cat.key==="100+") el.sort((a,b)=> (b._100Total||0)-(a._100Total||0));
+      if (!cat.isMVP && cat.key!=="100+") el.sort((a,b)=> ((+b[cat.key]||0)-(+a[cat.key]||0)));
       let top = el.slice(0,10);
       out += `<div class="top10-list-section">
         <div class="top10-list-title">Top 10 ${cat.label}</div>
         <table class="top10-list-table">
         <tr><th>Rank</th><th>Player</th><th>Team</th><th>${cat.label}</th></tr>`;
       top.forEach((p,i) => {
-        let v = cat.compute ? p._MVP.toFixed(2)
-           : cat.key==="100+" ? p._100Total : p[cat.key];
+        let v = cat.isMVP ? (p._MVP*100).toFixed(1) : cat.key==="100+" ? p._100Total : p[cat.key];
         out += `<tr>
           <td>#${i+1}</td>
           <td><button onclick="showPlayerPopup('${encodeURIComponent(p.Player)}')">${p.Player}</button></td>
@@ -732,66 +783,19 @@
     document.getElementById('top10-tables').innerHTML = out;
   }
 
-  function calcMvpScore(p) {
-    let w3=3, w1=1.5, w2=2, w4=4, w5=1, w6=0.5;
-    let t3=+p["3 Dart Avg"]||0, f9=+p["First 9 Avg"]||0;
-    let sw=+p["Sets Won"]||0, wl=+p["Win Rate (Legs)"]||0;
-    let hf=+p["High Finish"]||0;
-    let t100=(+p["100+"]||0)+(+p["140+"]||0)+(+p["170+"]||0)+(+p["180's"]||0);
-    return t3*w3 + f9*w1 + sw*w2 + wl*100*w4 + hf*w5 + t100*w6;
-  }
-
-  /* --- Results Page by Group and Date --- */
-  function renderResultsList() {
-    if (!resultsData.length) {
-      document.getElementById('results-list').innerHTML =
-        `<div style="color:#888;padding:10px">No results loaded.</div>`;
-      return;
-    }
-    let byGroup = {};
-    resultsData.forEach(r => {
-      let group = r.Group || "Other";
-      (byGroup[group] = byGroup[group] || []).push(r);
-    });
-
-    let out = '';
-    Object.entries(byGroup).forEach(([group, matches]) => {
-      let byDate = {};
-      matches.forEach(r => {
-        let date = r.Date || '';
-        (byDate[date] = byDate[date] || []).push(r);
-      });
-      out += `<div style="margin-bottom:30px">
-        <div style="font-size:1.12em;font-weight:800;color:var(--primary);margin:12px 0 7px 3px;">Group: ${group}</div>`;
-      Object.entries(byDate).sort((a,b)=>{
-        let d1=Date.parse(a[0]+" 2025"),d2=Date.parse(b[0]+" 2025");
-        return (isNaN(d1)||isNaN(d2))?a[0].localeCompare(b[0]):d2-d1;
-      }).forEach(([date, games]) => {
-        out += `<div class="date-group"><div class="date-label">${date}</div>
-          <table><tr><th>Team A</th><th></th><th>Team B</th><th>Score</th><th>Winner</th></tr>`;
-        games.forEach(r => {
-          let a = +r["Score A"]||0, b = +r["Score B"]||0;
-          let win = r.Winner || (a > b ? r["Team A"] : b > a ? r["Team B"] : "Draw");
-          out += `<tr>
-            <td>${r["Team A"]}</td><td style="color:#a81100;font-weight:700;">vs</td>
-            <td>${r["Team B"]}</td><td>${a} - ${b}</td>
-            <td class="winner-cell">${win}</td>
-          </tr>`;
-        });
-        out += `</table></div>`;
-      });
-      out += `</div>`;
-    });
-    document.getElementById('results-list').innerHTML = out;
-  }
-
-  /* --- Squads Page --- */
+  /* --- Squads Page + Filter --- */
   function renderSquadsList() {
     if (!statsData.length) return;
+    let teams = Array.from(new Set(statsData.map(x=>x.Team).filter(Boolean))).sort();
+    let tf = document.getElementById('squads-team-filter');
+    tf.innerHTML = `<option value="">All Teams</option>` + teams.map(t=>`<option>${t}</option>`).join('');
+    tf.onchange = renderSquadsList;
+    let teamFilter = tf.value;
     let byTeam = {};
     statsData.forEach(p => (byTeam[p.Team] = byTeam[p.Team]||[]).push(p));
     let out = '';
     Object.entries(byTeam).forEach(([team, players])=>{
+      if (teamFilter && team !== teamFilter) return;
       out += `<div class="squad-team-section">
         <div class="squad-team-name">${team}</div>
         <div class="squad-player-grid">`;
