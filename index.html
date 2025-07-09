@@ -934,37 +934,37 @@
 
   // TEAM STATS MODAL (like stats page but only for one team)
   window.showTeamStats = function(teamEnc) {
-    let team = decodeURIComponent(teamEnc);
-    let players = statsData.filter(p=>p.Team===team);
-    if (!players.length) return;
-    // Pick stats columns to show (mobile-optimized)
-    const cols = [
-      "Player","Sets Played","Sets Won","3 Dart Avg","First 9 Avg",
-      "High Finish","100+","140+","180's","Win Rate (Legs)","Win Rate (Sets)"
-    ];
-    let ths = cols.map(c=>`<th>${c}</th>`).join('');
-    let trs = players.map(p=>'<tr>'+cols.map(c=>{
-      if(c==="Player") return `<td><button class="player-link" onclick="showPlayerPopup('${encodeURIComponent(p.Player)}')">${p.Player}</button></td>`;
-      if (c.startsWith("Win Rate")) {
-        let v = asNum(p[c]);
-        return `<td>${v!=null ? (v*100).toFixed(1)+"%" : ""}</td>`;
-      }
-      return `<td>${p[c]||""}</td>`;
-    }).join('')+'</tr>').join('');
-    showCustomPopup(`
-      <div class="teamstats-popup-card">
-        <button class="close-btn" onclick="closeCustomPopup()" aria-label="Close">&times;</button>
-        <div class="team-stats-header-card">
-          All Player Stats for ${team}
-        </div>
-        <div style="overflow-x:auto;">
-          <table class="stats-table" style="min-width:390px">
-            <tr>${ths}</tr>${trs}
-          </table>
-        </div>
+  let team = decodeURIComponent(teamEnc);
+  let players = statsData.filter(p=>p.Team===team);
+  if (!players.length) return;
+  // Pick stats columns to show (mobile-optimized)
+  const cols = [
+    "Player","Sets Played","Sets Won","3 Dart Avg","First 9 Avg",
+    "High Finish","100+","140+","180's","Win Rate (Legs)","Win Rate (Sets)"
+  ];
+  let ths = cols.map(c=>`<th>${c}</th>`).join('');
+  let trs = players.map(p=>'<tr>'+cols.map(c=>{
+    if(c==="Player") return `<td><button class="player-link" onclick="showPlayerPopup('${encodeURIComponent(p.Player)}')">${p.Player}</button></td>`;
+    if (c.startsWith("Win Rate")) {
+      let v = asNum(p[c]);
+      return `<td>${v!=null ? (v*100).toFixed(1)+"%" : ""}</td>`;
+    }
+    return `<td>${p[c]||""}</td>`;
+  }).join('')+'</tr>').join('');
+  showCustomPopup(`
+    <div class="teamstats-popup-card">
+      <div class="team-stats-popup-header">
+        All Player Stats for ${team}
+        <button class="team-stats-popup-close-btn" onclick="closeCustomPopup()" aria-label="Close">&times;</button>
       </div>
-    `);
-  };
+      <div class="teamstats-popup-scroll">
+        <table class="stats-table" style="width:100%">
+          <tr>${ths}</tr>${trs}
+        </table>
+      </div>
+    </div>
+  `);
+};
 
   // --- Player popup ---
   window.showPlayerPopup = function(nameEnc) {
