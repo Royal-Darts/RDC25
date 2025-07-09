@@ -899,38 +899,44 @@
 
   /* --- Squads Page: Team Filter, TeamStats Popup --- */
   function renderSquadsList() {
-    if (!statsData.length) return;
-    let byTeam = {};
-    statsData.forEach(p => (byTeam[p.Team] = byTeam[p.Team]||[]).push(p));
-    let teams = Object.keys(byTeam).sort();
-    // Team filter dropdown
-    let sel = document.getElementById('squad-team-filter');
-    sel.innerHTML = `<option value="">All Teams</option>` + teams.map(t=>`<option>${t}</option>`).join('');
-    sel.onchange = renderSquadsList;
+  if (!statsData.length) return;
+  let byTeam = {};
+  statsData.forEach(p => (byTeam[p.Team] = byTeam[p.Team]||[]).push(p));
+  let teams = Object.keys(byTeam).sort();
 
-    let filter = sel.value;
-    let showTeams = filter ? [filter] : teams;
-    let out = '';
-    showTeams.forEach(team => {
-      let players = byTeam[team];
-      out += `<div class="squad-team-section">
-        <div class="squad-team-name-row">
-          <span class="squad-team-name" onclick="showTeamStats('${encodeURIComponent(team)}')" title="Show stats for this team">${team}</span>
-          <span class="team-stats-note">Tap team for full stats</span>
-        </div>
-        <div class="squad-player-grid">`;
-      players.forEach(p=>{
-        out += `<div class="squad-player-card">
-          <button class="player-link" onclick="showPlayerPopup('${encodeURIComponent(p.Player)}')">
-            ${p.Player}
-          </button>
-          <div class="squad-sets">${p["Sets Played"]||""} Sets, ${p["3 Dart Avg"]||""} 3DA</div>
-        </div>`;
-      });
-      out += `</div></div>`;
+  // 1. Get the current filter value before updating the dropdown
+  let sel = document.getElementById('squad-team-filter');
+  let filter = sel.value || "";
+
+  // 2. Build the dropdown options only if necessary, then set the value to the previous selection
+  let optionsHtml = `<option value="">All Teams</option>` + teams.map(t=>`<option value="${t}">${t}</option>`).join('');
+  sel.innerHTML = optionsHtml;
+  sel.value = filter; // restore previous selection
+  sel.onchange = renderSquadsList;
+
+  // 3. Show filtered teams
+  let showTeams = filter ? [filter] : teams;
+  let out = '';
+  showTeams.forEach(team => {
+    let players = byTeam[team];
+    out += `<div class="squad-team-section">
+      <div class="squad-team-name-row">
+        <span class="squad-team-name" onclick="showTeamStats('${encodeURIComponent(team)}')" title="Show stats for this team">${team}</span>
+        <span class="team-stats-note">Tap team for full stats</span>
+      </div>
+      <div class="squad-player-grid">`;
+    players.forEach(p=>{
+      out += `<div class="squad-player-card">
+        <button class="player-link" onclick="showPlayerPopup('${encodeURIComponent(p.Player)}')">
+          ${p.Player}
+        </button>
+        <div class="squad-sets">${p["Sets Played"]||""} Sets, ${p["3 Dart Avg"]||""} 3DA</div>
+      </div>`;
     });
-    document.getElementById('squads-list').innerHTML = out;
-  }
+    out += `</div></div>`;
+  });
+  document.getElementById('squads-list').innerHTML = out;
+}
 
   // TEAM STATS MODAL (like stats page but only for one team)
   window.showTeamStats = function(teamEnc) {
