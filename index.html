@@ -672,7 +672,7 @@
     Object.entries(byGroup).forEach(([group, teams]) => {
       teams.sort((a, b) =>
   (+b.Points||0) - (+a.Points||0) ||
-  ((asNum(b.For)-asNum(b.Against)) - (asNum(a.For)-asNum(a.Again))) ||
+  ((asNum(b.For)-asNum(b.Against)) - (asNum(a.For)-asNum(a.Against))) ||
   (asNum(b.For) - asNum(a.For))
 );
       out += `<tr><th colspan="10" style="background:var(--primary);color:#fff;font-size:1.1em;">${group}</th></tr>`;
